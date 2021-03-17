@@ -11,7 +11,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/afjoseph/common/print"
+	"github.com/afjoseph/commongo/print"
 )
 
 func IsDirectory(path string) bool {

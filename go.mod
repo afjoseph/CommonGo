@@ -1,4 +1,4 @@
-module github.com/afjoseph/common
+module github.com/afjoseph/commongo
 
 go 1.16
 
