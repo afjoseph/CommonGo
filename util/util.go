@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,10 +13,49 @@ import (
 	"github.com/afjoseph/commongo/print"
 )
 
+func SafeDelete(parentPath, targetPath string) error {
+	if !IsDirectory(parentPath) {
+		return print.Errorf("No parentPath")
+	}
+	if !IsDirectory(targetPath) {
+		// targetPath is already not there. Just ignore
+		return nil
+	}
+
+	// Evaluate symlinks
+	parentPath, err := filepath.EvalSymlinks(parentPath)
+	if err != nil {
+		return err
+	}
+	targetPath, err = filepath.EvalSymlinks(targetPath)
+	if err != nil {
+		return err
+	}
+	// Are they already the same?
+	if parentPath == targetPath {
+		return print.Errorf("trying to delete targetPath that has an identical parentPath: %s", targetPath)
+	}
+
+	// Get the relative path between them and make sure it does not have any
+	// '..' traversals
+	newPath, err := filepath.Rel(parentPath, targetPath)
+	if err != nil {
+		return err
+	}
+	if strings.Contains(newPath, "..") {
+		return print.Errorf("Can't delete %s since it is not inside expected parent dir %s",
+			targetPath, parentPath)
+	}
+	err = os.RemoveAll(targetPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func IsDirectory(path string) bool {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		log.Println(err)
 		return false
 	}
 	return fileInfo.IsDir()
@@ -26,7 +64,6 @@ func IsDirectory(path string) bool {
 func IsFile(path string) bool {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		log.Println(err)
 		return false
 	}
 	return !fileInfo.IsDir()

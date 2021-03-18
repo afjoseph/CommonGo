@@ -1,3 +1,7 @@
+### v1.0.3 - 18th March 2021
+
+* [util] Add SafeDelete and remove log statements
+
 ### v1.0.2 - 17th March 2021
 
 * [docs] Add README
