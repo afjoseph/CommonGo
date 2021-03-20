@@ -108,10 +108,28 @@ func Infof(format string, v ...interface{}) {
 	color.Unset()
 }
 
-// XXX One caveat here: you can't use error propagation using %w
+// ErrorWrapf creates an error out of a formatted string using 'format' with
+// arguments from 'v' and wraps it with 'wrappedError', along with the file and
+// line number this function was called from.
+// XXX One caveat here: you can only propagate one error
+func ErrorWrapf(wrappedError error, format string, v ...interface{}) error {
+	content := fmt.Sprintf(format, v...)
+	_, absFilepath, lineNum, _ := runtime.Caller(1)
+	relFilepath, ok := absToRelFilepath(absFilepath)
+	var prefix string
+	if ok {
+		prefix = fmt.Sprintf("[!%s:%d]", relFilepath, lineNum)
+	}
+	return fmt.Errorf("%w:%s: %s", wrappedError, prefix, content)
+}
+
+// ErrorWrapf creates an error out of a formatted string using 'format' with
+// arguments from 'v', along with the file and line number this function was
+// called from.
+// XXX One caveat here: you can't use error propagation using %w. If you want
+// that, use ErrorWrapf
 func Errorf(format string, v ...interface{}) error {
 	content := fmt.Sprintf(format, v...)
-
 	_, absFilepath, lineNum, _ := runtime.Caller(1)
 	relFilepath, ok := absToRelFilepath(absFilepath)
 	var prefix string
