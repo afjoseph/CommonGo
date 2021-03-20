@@ -1,3 +1,7 @@
+### v1.1.0 - 20th March 2021
+
+* [util] Add SafeDelete and remove log statements
+
 ### v1.0.3 - 18th March 2021
 
 * [util] Add SafeDelete and remove log statements
